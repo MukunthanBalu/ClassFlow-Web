@@ -1,0 +1,27 @@
+ClassFlow Logo ClassFlow
+Main
+📊 Dashboard ✅ Attendance 📁 Submissions 👥 Students
+🔗 Student View 🚪 Logout
+✅ Attendance
+
+Click P / L / A to mark each student for the selected date.
+
+⬇ Export CSV
+Date  
+{% if all_dates %}
+Past dates
+{% for d in all_dates %} {{ d }} {% endfor %}
+{% endif %}
+{% if students %}
+{% for s in students %} {% set att = att_dict.get(s.id, {}) %} {% set status = att.get('status', '') %}
+{{ s.name[0].upper() }}
+{{ s.name }}
+{{ s.roll_number or 'No roll #' }}
+P  L  A
+{% endfor %}
+{% else %}
+👥
+No students registered yet.
+
+Add Students
+{% endif %}
