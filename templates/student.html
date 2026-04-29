@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ClassFlow — Student</title>
+  <meta name="description" content="Submit your Python assignments and view the professor's screen."/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<div class="student-layout">
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="logo" style="display:flex; align-items:center; gap:8px;">
+      <img src="/static/img/logo.svg" alt="ClassFlow Logo" style="height: 28px; width: 28px; border-radius: 6px;">
+      ClassFlow
+    </div>
+    <div class="top-bar-right">
+      <div class="student-name-bar">
+        <input type="text" id="student-name" name="student_name" placeholder="Enter your full name" required style="width: 200px; padding: 6px 12px; border-radius: 8px;" />
+      </div>
+      <button id="checkin-btn" class="btn btn-success btn-sm">✓ Check In</button>
+      <span id="live-dot" class="live-dot">LIVE</span>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <main class="main-content">
+
+    <!-- Screen Viewer -->
+    <section class="screen-panel">
+      <div class="screen-panel-header">
+        🖥️ &nbsp;Professor's Screen
+        <span id="checkin-status" class="checkin-status"></span>
+      </div>
+      <div class="screen-viewer">
+        <img id="screen-img" alt="Professor's shared screen"/>
+        <div id="screen-placeholder" class="screen-placeholder" style="display:flex; flex-direction:column; align-items:center;">
+          <div class="icon">🖥️</div>
+          <p>Waiting for professor to share screen…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Panel -->
+    <aside class="right-panel">
+
+      <!-- Check-in card -->
+      <div class="checkin-card">
+        <h3>👋 Attendance</h3>
+        <p class="text-sm" style="margin-top:6px;">Click <strong>Check In</strong> in the top bar when class starts to mark yourself present.</p>
+        <p class="text-sm mt-8" style="color:var(--muted);">📅 Today: <strong style="color:var(--text);">{{ today }}</strong></p>
+      </div>
+
+      <!-- Upload Card -->
+      <div class="upload-card">
+        <h3>📁 Submit Assignment</h3>
+
+        <form id="submit-form" enctype="multipart/form-data">
+          <div class="form-group mt-16">
+            <label for="topic-input">Topic / Description (optional)</label>
+            <input type="text" id="topic-input" name="topic" placeholder="e.g. Pandas DataFrames Lab"/>
+          </div>
+
+          <div class="form-group mt-16">
+            <label>Python Code <span style="color:var(--muted)">.py / .ipynb</span></label>
+            <div class="upload-area" id="code-drop">
+              <input type="file" name="code_file" id="code-file-input" accept=".py,.ipynb,.txt"/>
+              <div class="icon">🐍</div>
+              <div class="label">Drop file or click to browse</div>
+              <div class="chosen" id="code-chosen"></div>
+            </div>
+          </div>
+
+          <div class="form-group mt-16">
+            <label>Output PDF</label>
+            <div class="upload-area" id="pdf-drop">
+              <input type="file" name="pdf_file" id="pdf-file-input" accept=".pdf"/>
+              <div class="icon">📄</div>
+              <div class="label">Drop PDF or click to browse</div>
+              <div class="chosen" id="pdf-chosen"></div>
+            </div>
+          </div>
+
+          <div class="progress-bar-wrap mt-8" id="progress-wrap">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full mt-16" style="justify-content:center;">
+            🚀 Submit Assignment
+          </button>
+        </form>
+      </div>
+
+    </aside>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="/static/js/screen_share.js"></script>
+<script src="/static/js/app.js"></script>
+<script>
+  // Sync file chosen labels
+  document.getElementById('code-file-input').addEventListener('change', function(){
+    document.getElementById('code-chosen').textContent = this.files[0]?.name || '';
+  });
+  document.getElementById('pdf-file-input').addEventListener('change', function(){
+    document.getElementById('pdf-chosen').textContent = this.files[0]?.name || '';
+  });
+</script>
+</body>
+</html>

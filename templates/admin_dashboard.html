@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — ClassFlow Admin</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo" style="display:flex; align-items:center; gap:10px;">
+      <img src="/static/img/logo.svg" alt="ClassFlow Logo" style="height: 28px; width: 28px; border-radius: 6px;">
+      ClassFlow
+    </div>
+    <div class="nav-section">Main</div>
+    <a href="/admin" class="nav-item active"><span class="icon">📊</span> Dashboard</a>
+    <a href="/admin/attendance" class="nav-item"><span class="icon">✅</span> Attendance</a>
+    <a href="/admin/submissions" class="nav-item"><span class="icon">📁</span> Submissions</a>
+    <a href="/admin/students" class="nav-item"><span class="icon">👥</span> Students</a>
+    <div class="sidebar-bottom">
+      <a href="/" class="nav-item" target="_blank"><span class="icon">🔗</span> Student View</a>
+      <a href="/admin/logout" class="nav-item"><span class="icon">🚪</span> Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <p>Welcome back, Professor. Here's your class overview.</p>
+    </div>
+
+    <!-- Server IP bar -->
+    <div class="ip-bar">
+      📡 &nbsp; Share this URL with students:&nbsp;
+      <code id="server-ip">{{ request.host_url }}{{ '' }}</code>
+      <button id="copy-ip-btn" class="copy-btn">Copy</button>
+    </div>
+
+    <!-- Screen Share Controls -->
+    <div class="share-bar">
+      <div class="share-bar-text">
+        <h3>🖥️ Screen Sharing</h3>
+        <p>Broadcast your screen to all connected students in real time.</p>
+      </div>
+      <div id="sharing-indicator" class="sharing-indicator">LIVE</div>
+      <button id="start-share-btn" class="btn btn-primary">▶ Start Sharing</button>
+      <button id="stop-share-btn" class="btn btn-danger" style="display:none;">⏹ Stop Sharing</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card stat-green">
+        <div class="label">Present Today</div>
+        <div class="value">{{ stats.today_present }}</div>
+        <div class="sub">checked in</div>
+      </div>
+      <div class="stat-card stat-cyan">
+        <div class="label">Today's Submissions</div>
+        <div class="value">{{ stats.today_submissions }}</div>
+        <div class="sub">assignments received</div>
+      </div>
+      <div class="stat-card stat-amber">
+        <div class="label">All-Time Submissions</div>
+        <div class="value">{{ stats.total_submissions }}</div>
+        <div class="sub">total files received</div>
+      </div>
+    </div>
+
+    <!-- Two column grid: attendance summary + recent submissions -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+      <!-- Today's attendance -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Today's Attendance</h2>
+          <a href="/admin/attendance" class="btn btn-secondary btn-sm">Manage →</a>
+        </div>
+        {% if today_att %}
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Roll</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for a in today_att %}
+            <tr>
+              <td>{{ a.name }}</td>
+              <td style="color:var(--muted)">{{ a.roll_number or '—' }}</td>
+              <td><span class="badge badge-{{ a.status }}">{{ a.status.title() }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <p>No attendance taken yet today.</p>
+          <a href="/admin/attendance" class="btn btn-primary btn-sm mt-16" style="margin-top:12px;">Take Attendance</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Recent submissions -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Recent Submissions</h2>
+          <a href="/admin/submissions" class="btn btn-secondary btn-sm">View All →</a>
+        </div>
+        {% if recent %}
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          {% for s in recent %}
+          <div class="sub-card">
+            <div style="font-size:1.6rem;">📄</div>
+            <div class="sub-info">
+              <div class="student-name">{{ s.name }}</div>
+              <div class="meta">{{ s.date }} {% if s.topic %}· {{ s.topic }}{% endif %}</div>
+              <div class="sub-files">
+                {% if s.code_path %}<a href="/api/download/{{ s.id }}/code" class="badge badge-purple">🐍 Code</a>{% endif %}
+                {% if s.pdf_path  %}<a href="/api/download/{{ s.id }}/pdf"  class="badge badge-cyan">📄 PDF</a>{% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="icon">📂</div>
+          <p>No submissions yet.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="/static/js/screen_share.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

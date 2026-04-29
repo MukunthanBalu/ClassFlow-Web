@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — ClassFlow</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <h1 style="display:flex; align-items:center; justify-content:center; gap:12px;">
+      <img src="/static/img/logo.svg" alt="ClassFlow Logo" style="height: 48px; width: 48px; border-radius: 8px;">
+      ClassFlow
+    </h1>
+    <p class="sub">Professor Admin Access</p>
+
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/admin/login">
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input type="password" id="password" name="password"
+               placeholder="Enter password" autofocus autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="btn btn-primary w-full mt-16" style="justify-content:center; padding:13px;">
+        Unlock Dashboard →
+      </button>
+    </form>
+
+    <p class="text-sm mt-16" style="text-align:center; color:var(--muted);">
+      Students → <a href="/">Go to student page</a>
+    </p>
+  </div>
+</div>
+</body>
+</html>

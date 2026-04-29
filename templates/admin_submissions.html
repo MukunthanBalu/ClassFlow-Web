@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submissions — ClassFlow Admin</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<div class="admin-layout">
+  <nav class="sidebar">
+    <div class="sidebar-logo" style="display:flex; align-items:center; gap:10px;">
+      <img src="/static/img/logo.svg" alt="ClassFlow Logo" style="height: 28px; width: 28px; border-radius: 6px;">
+      ClassFlow
+    </div>
+    <div class="nav-section">Main</div>
+    <a href="/admin" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="/admin/attendance" class="nav-item"><span class="icon">✅</span> Attendance</a>
+    <a href="/admin/submissions" class="nav-item active"><span class="icon">📁</span> Submissions</a>
+    <a href="/admin/students" class="nav-item"><span class="icon">👥</span> Students</a>
+    <div class="sidebar-bottom">
+      <a href="/" class="nav-item" target="_blank"><span class="icon">🔗</span> Student View</a>
+      <a href="/admin/logout" class="nav-item"><span class="icon">🚪</span> Logout</a>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <h1>📁 Submissions</h1>
+      <p>Browse assignments by date or by student.</p>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="flex gap-8 mb-16" style="margin-bottom:20px;">
+      <a href="/admin/submissions?view=date&selected={{ selected }}"
+         class="btn {% if view == 'date' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">
+        📅 By Date
+      </a>
+      <a href="/admin/submissions?view=student&selected={{ selected }}"
+         class="btn {% if view == 'student' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">
+        👤 By Student
+      </a>
+    </div>
+
+    <div class="sub-layout">
+
+      <!-- Filter list -->
+      <div class="sub-filter">
+        {% if view == 'date' %}
+          <h3>📅 Dates</h3>
+          <ul class="filter-list">
+            {% for d in all_dates %}
+            <li class="{% if d == selected %}active{% endif %}"
+                onclick="location.href='/admin/submissions?view=date&selected={{ d }}'">
+              {{ d }}
+            </li>
+            {% endfor %}
+            {% if not all_dates %}
+            <li style="color:var(--muted); cursor:default;">No submissions yet</li>
+            {% endif %}
+          </ul>
+        {% else %}
+          <h3>👤 Students</h3>
+          <ul class="filter-list">
+            {% for s in students %}
+            <li class="{% if s.id|string == selected %}active{% endif %}"
+                onclick="location.href='/admin/submissions?view=student&selected={{ s.id }}'">
+              <span>{{ s.name }}</span>
+              {% if s.roll_number %}<span class="badge badge-cyan" style="font-size:.7rem;">{{ s.roll_number }}</span>{% endif %}
+            </li>
+            {% endfor %}
+            {% if not students %}
+            <li style="color:var(--muted); cursor:default;">No students</li>
+            {% endif %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <!-- Submissions list -->
+      <div>
+        {% if view == 'date' %}
+          <h2 style="margin-bottom:16px;">
+            {% if selected %}Submissions on {{ selected }}{% else %}Select a date{% endif %}
+          </h2>
+        {% else %}
+          <h2 style="margin-bottom:16px;">
+            {% if selected %}All submissions{% else %}Select a student{% endif %}
+          </h2>
+        {% endif %}
+
+        {% if subs %}
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          {% for s in subs %}
+          <div class="sub-card">
+            <div style="font-size:2rem; flex-shrink:0;">
+              {% if s.code_path and s.pdf_path %}📦{% elif s.code_path %}🐍{% else %}📄{% endif %}
+            </div>
+            <div class="sub-info" style="flex:1;">
+              <div class="flex items-center gap-8">
+                <span class="student-name">{{ s.name }}</span>
+                {% if s.roll_number %}<span class="badge badge-cyan">{{ s.roll_number }}</span>{% endif %}
+              </div>
+              <div class="meta">
+                📅 {{ s.date }}
+                {% if s.topic %} &nbsp;·&nbsp; 📝 {{ s.topic }}{% endif %}
+                &nbsp;·&nbsp; 🕐 {{ s.submitted_at[:16] if s.submitted_at else '' }}
+              </div>
+              <div class="sub-files" style="margin-top:10px;">
+                {% if s.code_path %}
+                <a href="/api/download/{{ s.id }}/code" class="btn btn-secondary btn-sm">
+                  ⬇ {{ s.code_filename or 'code.py' }}
+                </a>
+                {% endif %}
+                {% if s.pdf_path %}
+                <a href="/api/download/{{ s.id }}/pdf" class="btn btn-secondary btn-sm">
+                  ⬇ {{ s.pdf_filename or 'output.pdf' }}
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <p>
+            {% if view == 'date' and selected %}No submissions on {{ selected }}.
+            {% elif view == 'student' and selected %}This student hasn't submitted anything yet.
+            {% else %}Select a {{ view }} on the left to view submissions.
+            {% endif %}
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
